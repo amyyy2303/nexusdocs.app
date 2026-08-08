@@ -1,5 +1,6 @@
 import { User } from "firebase/auth";
 import { create } from "zustand";
+import { useFileStore } from "./fileStore";
 
 import {
   login,
@@ -73,14 +74,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
     });
   },
 
-  logout: async () => {
-    await logout();
+ logout: async () => {
+  await logout();
 
-    set({
-      user: null,
-      loading: false,
-    });
-  },
+  useFileStore.getState().clearFiles();
+
+  set({
+    user: null,
+    loading: false,
+  });
+},
 
   refreshUser: (user: User) => {
     set({

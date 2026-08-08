@@ -1,32 +1,59 @@
+import { auth } from "@/services/auth/firebase";
 import { AppFile } from "@/types/file";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STORAGE_KEY = "NEXUSDOCS_FILES";
-
 export type StoredFile = AppFile;
+
+/**
+ * Returns a unique AsyncStorage key for
+ * the currently logged in Firebase user.
+ */
+function getStorageKey() {
+  const uid = auth.currentUser?.uid;
+
+  if (!uid) {
+    throw new Error("No authenticated user.");
+  }
+
+  return `NEXUSDOCS_FILES_${uid}`;
+}
 
 // ---------------- Existing Functions ----------------
 
 export async function getFiles(): Promise<StoredFile[]> {
-  const data = await AsyncStorage.getItem(STORAGE_KEY);
+  const data = await AsyncStorage.getItem(
+    getStorageKey()
+  );
 
   if (!data) return [];
 
   return JSON.parse(data);
 }
 
-export async function saveFile(file: StoredFile) {
+export async function saveFile(
+  file: StoredFile
+) {
   const files = await getFiles();
+
+  const alreadyExists = files.find(
+    (item) => item.id === file.id
+  );
+
+  if (alreadyExists) {
+    return;
+  }
 
   files.unshift(file);
 
   await AsyncStorage.setItem(
-    STORAGE_KEY,
+    getStorageKey(),
     JSON.stringify(files)
   );
 }
 
-export async function deleteFile(id: string) {
+export async function deleteFile(
+  id: string
+) {
   const files = await getFiles();
 
   const updated = files.filter(
@@ -34,7 +61,7 @@ export async function deleteFile(id: string) {
   );
 
   await AsyncStorage.setItem(
-    STORAGE_KEY,
+    getStorageKey(),
     JSON.stringify(updated)
   );
 }
@@ -55,7 +82,7 @@ export async function renameFile(
   );
 
   await AsyncStorage.setItem(
-    STORAGE_KEY,
+    getStorageKey(),
     JSON.stringify(updated)
   );
 }
@@ -75,7 +102,7 @@ export async function toggleFavorite(
   );
 
   await AsyncStorage.setItem(
-    STORAGE_KEY,
+    getStorageKey(),
     JSON.stringify(updated)
   );
 }
@@ -100,7 +127,7 @@ export async function getStorageStats() {
 
 export async function deleteAllOfflineFiles() {
   await AsyncStorage.setItem(
-    STORAGE_KEY,
+    getStorageKey(),
     JSON.stringify([])
   );
 }
@@ -110,7 +137,9 @@ export function formatSize(bytes: number) {
     return `${bytes} B`;
 
   if (bytes < 1024 * 1024)
-    return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(
+      bytes / 1024
+    ).toFixed(1)} KB`;
 
   if (bytes < 1024 * 1024 * 1024)
     return `${(
@@ -133,7 +162,9 @@ export function formatDate(
   if (!date) return "Unknown";
 
   try {
-    return new Date(date).toLocaleDateString();
+    return new Date(
+      date
+    ).toLocaleDateString();
   } catch {
     return "Unknown";
   }

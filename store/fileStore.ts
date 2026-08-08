@@ -13,54 +13,69 @@ interface FileStore {
 
   loadFiles: () => Promise<void>;
 
-  addFile: (file: StoredFile) => Promise<void>;
+  clearFiles: () => void;
 
-  removeFile: (id: string) => Promise<void>;
+  addFile: (
+    file: StoredFile
+  ) => Promise<void>;
 
-  favoriteFile: (id: string) => Promise<void>;
+  removeFile: (
+    id: string
+  ) => Promise<void>;
+
+  favoriteFile: (
+    id: string
+  ) => Promise<void>;
 }
 
-export const useFileStore = create<FileStore>((set) => ({
-  files: [],
+export const useFileStore =
+  create<FileStore>((set) => ({
+    files: [],
 
-  loadFiles: async () => {
-    const files = await getFiles();
+    loadFiles: async () => {
+      const files = await getFiles();
 
-    set({
-      files,
-    });
-  },
+      set({
+        files,
+      });
+    },
 
-  addFile: async (file) => {
-    await saveFile(file);
+    clearFiles: () => {
+      set({
+        files: [],
+      });
+    },
 
-    set((state) => ({
-      files: [file, ...state.files],
-    }));
-  },
+    addFile: async (file) => {
+      await saveFile(file);
 
-  removeFile: async (id) => {
-    await deleteFile(id);
+      const files =
+        await getFiles();
 
-    set((state) => ({
-      files: state.files.filter(
-        (file) => file.id !== id
-      ),
-    }));
-  },
+      set({
+        files,
+      });
+    },
 
-  favoriteFile: async (id) => {
-    await toggleFavorite(id);
+    removeFile: async (id) => {
+      await deleteFile(id);
 
-    set((state) => ({
-      files: state.files.map((file) =>
-        file.id === id
-          ? {
-              ...file,
-              isFavorite: !file.isFavorite,
-            }
-          : file
-      ),
-    }));
-  },
-}));
+      const files =
+        await getFiles();
+
+      set({
+        files,
+      });
+    },
+
+    favoriteFile: async (id) => {
+      await toggleFavorite(id);
+
+      const files =
+        await getFiles();
+
+      set({
+        files,
+      });
+    },
+  }));
