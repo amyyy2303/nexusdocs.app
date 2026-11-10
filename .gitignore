@@ -6,7 +6,7 @@ web-build/
 
 .env
 .env.*
-.google-services.json
+google-services.json
 *.keystore
 
 
@@ -22,3 +22,5 @@ yarn-error.log*
 
 expo-env.d.ts
 # @end expo-cli
+
+modules/nexus-dsa/cpp/*_test
