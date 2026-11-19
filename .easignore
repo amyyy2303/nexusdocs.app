@@ -1,0 +1,27 @@
+# Git and operating-system files
+.git/
+.DS_Store
+
+# Dependencies and generated build output
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Environment and local credentials
+.env
+.env.*
+*.keystore
+
+# Editor settings and logs
+.vscode/settings.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude iOS project from Android cloud builds
+ios/
+
+# Ignore generated DSA test binaries
+modules/nexus-dsa-native/cpp/*_test
